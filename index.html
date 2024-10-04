@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora e Sintetizador de Registros Criminais</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f3f4f6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            margin-top: 50px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            max-width: 800px;
+            width: 90%;
+        }
+        h2 {
+            text-align: center;
+            color: #007BFF;
+            margin-bottom: 20px;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            font-weight: bold;
+            margin-top: 15px;
+        }
+        button {
+            margin-top: 20px;
+            padding: 15px;
+            font-size: 16px;
+            color: #ffffff;
+            background-color: #007BFF;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #resultado-sintetizador, #resultado {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #007BFF;
+        }
+        #tabs {
+            display: flex;
+            width: 100%;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ccc;
+        }
+        .tab {
+            padding: 15px 20px;
+            cursor: pointer;
+            background-color: #007BFF;
+            color: white;
+            margin-right: 5px;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+            transition: background-color 0.3s ease;
+        }
+        .tab:hover {
+            background-color: #0056b3;
+        }
+        .tab.active {
+            background-color: #0056b3;
+            color: #ffffff;
+            border-bottom: 2px solid #f3f4f6;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        input[type="number"], input[type="text"], input[type="date"], select {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-top: 5px;
+            transition: border-color 0.3s ease;
+        }
+        input:focus {
+            border-color: #007BFF;
+            outline: none;
+        }
+        .input-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-top: 5px;
+        }
+        hr {
+            margin-top: 25px;
+            border: 0.5px solid #ccc;
+        }
+        #explicacao {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+        footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="tabs">
+            <div class="tab active" onclick="openTab('calculadora')">Calculadora de Pena</div>
+            <div class="tab" onclick="openTab('sintetizador')">Sintetizador de Registros</div>
+        </div>
+
+        <!-- Calculadora de Pena -->
+        <div id="calculadora" class="tab-content active">
+            <h2>Calculadora de Pena de Multa Proporcional</h2>
+            <form id="penacominada">
+                <label for="minimomultacominada">Pena mínima de multa cominada:</label>
+                <input type="number" id="minimomultacominada">
+
+                <label for="maximomultacominada">Pena máxima de multa cominada:</label>
+                <input type="number" id="maximomultacominada">
+
+                <label>Mínimo de pena privativa de liberdade cominada:</label>
+                <div class="input-group">
+                    <input type="number" id="minimoprisaocominada_ano" placeholder="Anos">
+                    <input type="number" id="minimoprisaocominada_mes" placeholder="Meses">
+                    <input type="number" id="minimoprisaocominada_dias" placeholder="Dias">
+                </div>
+
+                <label>Máximo de pena privativa de liberdade cominada:</label>
+                <div class="input-group">
+                    <input type="number" id="maximoprisaocominada_ano" placeholder="Anos">
+                    <input type="number" id="maximoprisaocominada_mes" placeholder="Meses">
+                    <input type="number" id="maximoprisaocominada_dias" placeholder="Dias">
+                </div>
+            </form>
+
+            <h2>Pena Privativa de Liberdade Aplicada</h2>
+            <form id="penaaplicada">
+                <label>Pena de prisão aplicada:</label>
+                <div class="input-group">
+                    <input type="number" id="prisaoaplicada_ano" placeholder="Anos">
+                    <input type="number" id="prisaoaplicada_mes" placeholder="Meses">
+                    <input type="number" id="prisaoaplicada_dias" placeholder="Dias">
+                </div>
+
+                <button type="button" onclick="calcular()">Calcular</button>
+            </form>
+
+            <h3>Resultado:</h3>
+            <p id="resultado"></p>
+
+            <button type="button" onclick="toggleExplicacao()">Entenda o cálculo</button>
+            <div id="explicacao">
+                <p>Este cálculo é feito da seguinte forma. Em um primeiro momento, descobre-se os intervalos das penas cominada.</p>
+                <code>(Pena de Multa Cominada Máxima) - (Pena de Multa Cominada Mínima) e (Pena Privativa de Liberdade Cominada Máxima) - (Pena Privativa de Liberdade Cominada Mínima)</code>
+                <p>Depois, subtrai-se da pena de prisão aplicada a pena de prisão mínima cominada.</p>
+                <code>(Pena Privativa de Liberdade Aplicada) - (Pena Privativa de Liberdade Cominada Mínima)</code>
+                <p>De posse dessas informações, descobre-se o índice da proporção que corresponde à pena privativa de liberdade aplicada em relação ao intervalo de pena privativa de liberdade cominada</p> 
+                <code>Índice = (pena de prisão aplicada) / (intervalo de pena de multa aplicável)</code>
+                <p>Multiplica-se, para chegar ao resultado da pena de multa proporcional, o índice que corresponde à pena de privativa de liberdade aplicada sobre o intervalo de pena de multa cominada.</p>
+                <code>índice * (intervalo pena de multa)</code>
+                <p>Meses e anos são calculados à razão de anos. Um mês, para a calculadora, é igual a 1/12 de ano; um dia, para a calculadora, é igual a 1/365 de ano.</p>
+            </div>
+
+            <footer>Feito por João Marcos de Oliveira Dorigão</footer>
+        </div>
+
+        <!-- Sintetizador de Registros -->
+        <div id="sintetizador" class="tab-content">
+            <h2>Formato de Sínteses de Registros Criminais</h2>
+            <form id="registro-form">
+                <div id="registros-container">
+                    <div class="registro">
+                        <label>Data do fato ora julgado:</label>
+                        <input type="date" class="data-fato">
+
+                        <label>Número dos autos de ação penal do registro criminal:</label>
+                        <input type="text" class="numero-autos">
+
+                        <label>Nome réu:</label>
+                        <input type="text" class="nome-reu">
+
+                        <label>Vara em que tramitaram os autos:</label>
+                        <input type="text" class="vara-tramitou">
+
+                        <label>Situação do réu:</label>
+                        <select class="situacao-reu" onchange="toggleSituacaoReu(this)">
+                            <option value="">Selecione</option>
+                            <option value="condenado">Condenado com trânsito em julgado</option>
+                            <option value="absolvido">Absolvido</option>
+                            <option value="extincao-punibilidade">Extinta a punibilidade</option>
+                            <option value="sem-sentenca">Não há sentença com trânsito em julgado</option>
+                        </select>
+
+                        <div class="transito-em-julgado" style="display: none;">
+                            <label>Data do trânsito em julgado:</label>
+                            <input type="date" class="data-transito">
+                        </div>
+
+                        <div class="tipo-penal" style="display: none;">
+                            <label>Tipo penal da condenação:</label>
+                            <input type="text" class="tipo-penal-condenacao">
+
+                            <label>Data dos fatos pelos quais foi condenado:</label>
+                            <input type="date" class="data-fato-condenacao">
+                        </div>
+
+                        <div class="causa-extincao" style="display: none;">
+                            <label>Razão da extinção da punibilidade:</label>
+                            <input type="text" class="razao-extincao">
+                        </div>
+
+                        <div class="execucao-penal" style="display: none;">
+                            <label>Execução penal:</label>
+                            <select class="execucao-penal-status" onchange="toggleExecucaoPenalStatus(this)">
+                                <option value="">Selecione</option>
+                                <option value="em-curso">Execução penal em curso</option>
+                                <option value="ja-extinta">Execução penal já extinta</option>
+                                <option value="nao-executada">Pena não executada</option>
+                            </select>
+                        </div>
+
+                        <div class="dados-execucao" style="display: none;">
+                            <label>Número dos autos da execução penal:</label>
+                            <input type="text" class="numero-autos-execucao">
+
+                            <label>Juízo executante:</label>
+                            <input type="text" class="juizo-executante">
+                        </div>
+
+                        <div class="transito-extincao-pena" style="display: none;">
+                            <label>Data do trânsito em julgado da extinção de punibilidade da pena:</label>
+                            <input type="date" class="data-transito-extincao">
+                        </div>
+
+                        <hr>
+                    </div>
+                </div>
+                <button type="button" onclick="adicionarRegistro()">Adicionar Registro Criminal</button>
+                <button type="button" onclick="sintetizarRegistros()">Sintetizar Registros</button>
+            </form>
+
+            <div id="resultado-sintetizador"></div>
+        </div>
+    </div>
+
+    <script>
+        function openTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.querySelector(`.tab[onclick="openTab('${tabName}')"]`).classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        function calcular() {
+            var minimomultacominada = parseFloat(document.getElementById("minimomultacominada").value) || 0;
+            var maximomultacominada = parseFloat(document.getElementById("maximomultacominada").value) || 0;
+            var minimoprisaocominada_ano = parseFloat(document.getElementById("minimoprisaocominada_ano").value) || 0;
+            var minimoprisaocominada_mes = parseFloat(document.getElementById("minimoprisaocominada_mes").value) || 0;
+            var minimoprisaocominada_dias = parseFloat(document.getElementById("minimoprisaocominada_dias").value) || 0;
+            var maximoprisaocominada_ano = parseFloat(document.getElementById("maximoprisaocominada_ano").value) || 0;
+            var maximoprisaocominada_mes = parseFloat(document.getElementById("maximoprisaocominada_mes").value) || 0;
+            var maximoprisaocominada_dias = parseFloat(document.getElementById("maximoprisaocominada_dias").value) || 0;
+            var prisaoaplicada_ano = parseFloat(document.getElementById("prisaoaplicada_ano").value) || 0;
+            var prisaoaplicada_mes = parseFloat(document.getElementById("prisaoaplicada_mes").value) || 0;
+            var prisaoaplicada_dias = parseFloat(document.getElementById("prisaoaplicada_dias").value) || 0;
+
+            var minimoprisaocominada_total = minimoprisaocominada_ano + (minimoprisaocominada_mes / 12) + (minimoprisaocominada_dias / 365);
+            var maximoprisaocominada_total = maximoprisaocominada_ano + (maximoprisaocominada_mes / 12) + (maximoprisaocominada_dias / 365);
+            var prisaoaplicada_total = prisaoaplicada_ano + (prisaoaplicada_mes / 12) + (prisaoaplicada_dias / 365);
+
+            var deltamulta = maximomultacominada - minimomultacominada;
+            var deltaprisaocominada = maximoprisaocominada_total - minimoprisaocominada_total;
+
+            var porcentagem_aplicada_sobre_cominada = (prisaoaplicada_total - minimoprisaocominada_total) / deltaprisaocominada;
+            var penamultaproporcional = deltamulta * porcentagem_aplicada_sobre_cominada;
+
+            var multaproporcional = Math.floor(minimomultacominada + penamultaproporcional);
+
+            document.getElementById("resultado").textContent = "A pena de multa proporcional corresponde a " + multaproporcional + " dias-multa.";
+        }
+
+        function toggleExplicacao() {
+            var explicacao = document.getElementById("explicacao");
+            explicacao.style.display = (explicacao.style.display === "none" || explicacao.style.display === "") ? "block" : "none";
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '';
+            const [year, month, day] = dateStr.split('-');
+            return `${day}/${month}/${year}`;
+        }
+
+        function toggleSituacaoReu(select) {
+            const registro = select.closest('.registro');
+            const transitoDiv = registro.querySelector('.transito-em-julgado');
+            const tipoPenalDiv = registro.querySelector('.tipo-penal');
+            const causaExtincaoDiv = registro.querySelector('.causa-extincao');
+            const execucaoPenalDiv = registro.querySelector('.execucao-penal');
+
+            transitoDiv.style.display = (select.value === 'condenado' || select.value === 'absolvido' || select.value === 'extincao-punibilidade') ? 'block' : 'none';
+            tipoPenalDiv.style.display = (select.value === 'condenado') ? 'block' : 'none';
+            causaExtincaoDiv.style.display = (select.value === 'extincao-punibilidade') ? 'block' : 'none';
+            execucaoPenalDiv.style.display = (select.value === 'condenado') ? 'block' : 'none';
+        }
+
+        function toggleExecucaoPenalStatus(select) {
+            const registro = select.closest('.registro');
+            const dadosExecucaoDiv = registro.querySelector('.dados-execucao');
+            const transitoExtincaoPenaDiv = registro.querySelector('.transito-extincao-pena');
+
+            dadosExecucaoDiv.style.display = (select.value === 'em-curso' || select.value === 'ja-extinta') ? 'block' : 'none';
+            transitoExtincaoPenaDiv.style.display = (select.value === 'ja-extinta') ? 'block' : 'none';
+        }
+
+        function adicionarRegistro() {
+            const container = document.getElementById('registros-container');
+            const novoRegistro = container.firstElementChild.cloneNode(true);
+            novoRegistro.querySelectorAll('input, select').forEach(input => input.value = '');
+            novoRegistro.querySelectorAll('.transito-em-julgado, .tipo-penal, .causa-extincao, .execucao-penal, .dados-execucao, .transito-extincao-pena').forEach(div => div.style.display = 'none');
+            container.appendChild(novoRegistro);
+        }
+
+        function sintetizarRegistros() {
+            const registros = document.querySelectorAll('.registro');
+            let resultadoTexto = '';
+
+            registros.forEach((registro, index) => {
+                const dataFato = formatDate(registro.querySelector('.data-fato').value);
+                const nomeReu = registro.querySelector('.nome-reu').value;
+                const numeroAutos = registro.querySelector('.numero-autos').value;
+                const varaTramitou = registro.querySelector('.vara-tramitou').value;
+                const situacaoReu = registro.querySelector('.situacao-reu').value;
+                const dataTransito = formatDate(registro.querySelector('.data-transito').value);
+
+                let texto = '';
+
+                if (situacaoReu === 'sem-sentenca') {
+                    texto = `Ação Penal nº ${numeroAutos}, que tramita perante o Juízo da ${varaTramitou} e que, até a data da presente sentença, não se tem informações do deslinde processual.`;
+                } else if (situacaoReu === 'condenado') {
+                    const tipoPenal = registro.querySelector('.tipo-penal-condenacao').value;
+                    const dataFatoCondenacao = formatDate(registro.querySelector('.data-fato-condenacao').value);
+                    const execucaoPenalStatus = registro.querySelector('.execucao-penal-status').value;
+                    const numeroAutosExecucao = registro.querySelector('.numero-autos-execucao').value;
+                    const juizoExecutante = registro.querySelector('.juizo-executante').value;
+                    const dataTransitoExtincao = formatDate(registro.querySelector('.data-transito-extincao').value);
+
+                    texto = `Ação Penal nº ${numeroAutos}, que tramitou perante o Juízo da ${varaTramitou} e que condenou ${nomeReu} à pena de reclusão, em razão da prática do crime tipificado no artigo ${tipoPenal}, por fato datado no dia ${dataFatoCondenacao}, com trânsito em julgado da sentença condenatória em ${dataTransito}. `;
+
+                    if (execucaoPenalStatus === 'ja-extinta') {
+                        texto += `A pena foi executada pelo Juízo da ${juizoExecutante} nos autos de execução penal nº ${numeroAutosExecucao}, com trânsito em julgado da sentença de extinção de punibilidade pelo cumprimento da pena datado de ${dataTransitoExtincao}.`;
+                    } else if (execucaoPenalStatus === 'em-curso') {
+                        texto += `A pena é executada pelo Juízo da ${juizoExecutante} nos autos de execução penal nº ${numeroAutosExecucao}, sem informações de extinção de punibilidade pelo cumprimento da pena.`;
+                    } else {
+                        texto += `Não há informações a respeito da execução da pena privativa de liberdade.`;
+                    }
+
+                    const dataFatoDate = new Date(registro.querySelector('.data-fato').value);
+                    const dataTransitoDate = new Date(registro.querySelector('.data-transito').value);
+                    const diffAnos = (dataFatoDate - dataTransitoDate) / (1000 * 60 * 60 * 24 * 365);
+
+                    if (execucaoPenalStatus === 'ja-extinta' && diffAnos > 5) {
+                        texto += ' Vale dizer, esse registro não pode ser considerado como reincidência, porque há o transcurso do prazo depurador previsto no artigo 64, I, do Código Penal.';
+                    } else if (execucaoPenalStatus === 'em-curso' || execucaoPenalStatus === 'nao-executada') {
+                        texto += (dataTransitoDate < dataFatoDate) ?
+                            ' Nota-se, ainda, que a referida condenação tem trânsito em julgado em data anterior ao fato ora julgado, podendo ser considerado como reincidência, à luz do artigo 63 do Código Penal.' :
+                            ' Nota-se, ainda, que a referida condenação tem trânsito em julgado em data posterior ao fato ora julgado, não podendo ser considerada como reincidência, à luz do artigo 63 do Código Penal.';
+                    }
+                } else if (situacaoReu === 'absolvido') {
+                    texto = `Ação Penal nº ${numeroAutos}, que tramitou perante o Juízo da ${varaTramitou} e que absolveu ${nomeReu}. A decisão transitou em julgado em ${dataTransito}.`;
+                } else if (situacaoReu === 'extincao-punibilidade') {
+                    const razaoExtincao = registro.querySelector('.razao-extincao').value;
+                    texto = `Ação Penal nº ${numeroAutos}, que tramitou perante o Juízo da ${varaTramitou} e que extinguiu a pena de ${nomeReu}, em razão de ${razaoExtincao}. A decisão transitou em julgado em ${dataTransito}.`;
+                }
+
+                resultadoTexto += `<p>${texto}</p>`;
+            });
+
+            document.getElementById('resultado-sintetizador').innerHTML = resultadoTexto;
+        }
+    </script>
+</body>
+</html>
